@@ -1,0 +1,518 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the Feder package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Feder 1.1.0\n"
+"Report-Msgid-Bugs-To: https://github.com/netlusche/Feder/issues\n"
+"POT-Creation-Date: 2026-11-28 00:39+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: feder.py:105
+msgid "HTML page"
+msgstr ""
+
+#: feder.py:106
+msgid "Word document"
+msgstr ""
+
+#: feder.py:107
+msgid "LibreOffice document"
+msgstr ""
+
+#: feder.py:108
+msgid "PDF document"
+msgstr ""
+
+#: feder.py:203
+msgid "plain text"
+msgstr ""
+
+#: feder.py:214 feder.py:221
+#, python-brace-format
+msgid "pandoc error: {message}"
+msgstr ""
+
+#: feder.py:362
+msgid "text"
+msgstr ""
+
+#: feder.py:383
+msgid "link text"
+msgstr ""
+
+#: feder.py:496
+#, python-brace-format
+msgid "Column {n}"
+msgstr ""
+
+#: feder.py:526
+msgid "image description"
+msgstr ""
+
+#: feder.py:642
+msgid "Preview"
+msgstr ""
+
+#: feder.py:676
+msgid "The preview appears here as soon as you start writing."
+msgstr ""
+
+#: feder.py:768
+msgid "Search in text …"
+msgstr ""
+
+#: feder.py:796
+msgid "FOCUS"
+msgstr ""
+
+#: feder.py:801 feder.py:1028
+msgid "Words, characters and reading time"
+msgstr ""
+
+#: feder.py:820
+msgid "Open (Ctrl+O)"
+msgstr ""
+
+#: feder.py:823
+msgid "Save (Ctrl+S)"
+msgstr ""
+
+#: feder.py:826
+msgid "New (Ctrl+N)"
+msgstr ""
+
+#: feder.py:832
+msgid "New"
+msgstr ""
+
+#: feder.py:833
+msgid "Open …"
+msgstr ""
+
+#: feder.py:834 feder.py:1239
+msgid "Save"
+msgstr ""
+
+#: feder.py:835
+msgid "Save As …"
+msgstr ""
+
+#: feder.py:840
+msgid "Export As"
+msgstr ""
+
+#: feder.py:842 feder.py:1465
+msgid "Search"
+msgstr ""
+
+#: feder.py:843 feder.py:1466
+msgid "Full Screen"
+msgstr ""
+
+#: feder.py:845
+msgid "System Default"
+msgstr ""
+
+#: feder.py:848
+msgid "Language"
+msgstr ""
+
+#: feder.py:851
+msgid "Show Introduction"
+msgstr ""
+
+#: feder.py:852 feder.py:1469 feder.py:1470
+msgid "Keyboard Shortcuts"
+msgstr ""
+
+#: feder.py:853
+msgid "About Feder"
+msgstr ""
+
+#: feder.py:856
+msgid "Main Menu"
+msgstr ""
+
+#: feder.py:859
+msgid "Export (Ctrl+E)"
+msgstr ""
+
+#: feder.py:864
+msgid "Editor Only"
+msgstr ""
+
+#: feder.py:865
+msgid "Editor and Preview"
+msgstr ""
+
+#: feder.py:866
+msgid "Preview Only"
+msgstr ""
+
+#: feder.py:868
+msgid "View (Ctrl+P switches)"
+msgstr ""
+
+#: feder.py:870
+msgid "Hemingway mode: no deleting (Ctrl+Shift+H)"
+msgstr ""
+
+#: feder.py:872
+msgid "Focus mode (Ctrl+D)"
+msgstr ""
+
+#: feder.py:939
+msgid "code"
+msgstr ""
+
+#: feder.py:961
+msgid "Bold (Ctrl+B)"
+msgstr ""
+
+#: feder.py:962
+msgid "Italic (Ctrl+I)"
+msgstr ""
+
+#: feder.py:963
+msgid "Strikethrough (Ctrl+Shift+X)"
+msgstr ""
+
+#: feder.py:964
+msgid "Heading (Ctrl+1, 2, 3)"
+msgstr ""
+
+#: feder.py:965
+msgid "Bulleted list (Ctrl+Shift+L)"
+msgstr ""
+
+#: feder.py:966
+msgid "Numbered list (Ctrl+Shift+N)"
+msgstr ""
+
+#: feder.py:967
+msgid "Task list (Ctrl+Shift+O)"
+msgstr ""
+
+#: feder.py:968
+msgid "Quote (Ctrl+Shift+Q)"
+msgstr ""
+
+#: feder.py:969
+msgid "Link (Ctrl+K)"
+msgstr ""
+
+#: feder.py:970
+msgid "Insert image (Ctrl+Shift+I)"
+msgstr ""
+
+#: feder.py:971
+msgid "Insert table (Ctrl+Shift+T)"
+msgstr ""
+
+#: feder.py:972
+msgid "Code block (Ctrl+Alt+C)"
+msgstr ""
+
+#: feder.py:984
+#, python-brace-format
+msgid "Heading {n}"
+msgstr ""
+
+#: feder.py:1020
+#, python-brace-format
+msgid "{n} word"
+msgid_plural "{n} words"
+msgstr[0] ""
+msgstr[1] ""
+
+#: feder.py:1021
+#, python-brace-format
+msgid "{n} character"
+msgid_plural "{n} characters"
+msgstr[0] ""
+msgstr[1] ""
+
+#: feder.py:1022
+#, python-brace-format
+msgid "{n} min read"
+msgstr ""
+
+#: feder.py:1025
+msgid "Click to switch between words, characters and reading time"
+msgstr ""
+
+#: feder.py:1032
+msgid "Images"
+msgstr ""
+
+#: feder.py:1037
+msgid "Insert Image"
+msgstr ""
+
+#: feder.py:1053
+msgid ""
+"Tip: Save the document first, then the image path becomes relative and "
+"portable."
+msgstr ""
+
+#: feder.py:1066
+msgid "Restart Feder to switch the language."
+msgstr ""
+
+#: feder.py:1106
+msgid "Hemingway mode on: deleting is disabled. Only forward!"
+msgstr ""
+
+#: feder.py:1107
+msgid "Hemingway mode off: you can delete again."
+msgstr ""
+
+#: feder.py:1114
+msgid "Hemingway mode: deleting is disabled. Just keep writing."
+msgstr ""
+
+#: feder.py:1173
+#, python-brace-format
+msgid "Line {line}, Column {column}"
+msgstr ""
+
+#: feder.py:1185
+msgid "no matches"
+msgstr ""
+
+#: feder.py:1186
+#, python-brace-format
+msgid "{n} match"
+msgid_plural "{n} matches"
+msgstr[0] ""
+msgstr[1] ""
+
+#: feder.py:1213 feder.py:1231 feder.py:1363 feder.py:1364
+msgid "Untitled"
+msgstr ""
+
+#: feder.py:1220
+msgid "Not saved yet"
+msgstr ""
+
+#: feder.py:1232
+msgid "Save changes?"
+msgstr ""
+
+#: feder.py:1233
+#, python-brace-format
+msgid "“{name}” has unsaved changes. They will be lost if you don’t save them."
+msgstr ""
+
+#: feder.py:1237
+msgid "Cancel"
+msgstr ""
+
+#: feder.py:1238
+msgid "Discard"
+msgstr ""
+
+#: feder.py:1274
+msgid "All Files"
+msgstr ""
+
+#: feder.py:1290
+msgid "Open Markdown File"
+msgstr ""
+
+#: feder.py:1308
+#, python-brace-format
+msgid "Could not open the file: {error}"
+msgstr ""
+
+#: feder.py:1323 feder.py:1458
+msgid "Save As"
+msgstr ""
+
+#: feder.py:1349
+#, python-brace-format
+msgid "Saving failed: {error}"
+msgstr ""
+
+#: feder.py:1356
+#, python-brace-format
+msgid "Saved: {name}"
+msgstr ""
+
+#: feder.py:1369
+#, python-brace-format
+msgid "Word and ODT export needs pandoc: {command}"
+msgstr ""
+
+#: feder.py:1372
+#, python-brace-format
+msgid "Export as {format}"
+msgstr ""
+
+#: feder.py:1400
+#, python-brace-format
+msgid "Export failed: {error}"
+msgstr ""
+
+#: feder.py:1402
+#, python-brace-format
+msgid "Exported: {name}"
+msgstr ""
+
+#: feder.py:1404
+msgid "Open"
+msgstr ""
+
+#: feder.py:1421
+msgid "Creating PDF …"
+msgstr ""
+
+#: feder.py:1448
+#, python-brace-format
+msgid "pandoc exit code {code}"
+msgstr ""
+
+#: feder.py:1458
+msgid "New / Open / Save"
+msgstr ""
+
+#: feder.py:1458
+msgid "Ctrl+N / Ctrl+O / Ctrl+S"
+msgstr ""
+
+#: feder.py:1458
+msgid "Ctrl+Shift+S"
+msgstr ""
+
+#: feder.py:1459
+msgid "Export"
+msgstr ""
+
+#: feder.py:1459
+msgid "Ctrl+E"
+msgstr ""
+
+#: feder.py:1459
+msgid "Switch view"
+msgstr ""
+
+#: feder.py:1459
+msgid "Ctrl+P"
+msgstr ""
+
+#: feder.py:1459
+msgid "Focus mode"
+msgstr ""
+
+#: feder.py:1459
+msgid "Ctrl+D"
+msgstr ""
+
+#: feder.py:1460
+msgid "Hemingway mode"
+msgstr ""
+
+#: feder.py:1460
+msgid "Ctrl+Shift+H"
+msgstr ""
+
+#: feder.py:1461
+msgid "Bold / Italic / Code"
+msgstr ""
+
+#: feder.py:1461
+msgid "Ctrl+B / Ctrl+I / Ctrl+Shift+C"
+msgstr ""
+
+#: feder.py:1462
+msgid "Strikethrough"
+msgstr ""
+
+#: feder.py:1462
+msgid "Ctrl+Shift+X"
+msgstr ""
+
+#: feder.py:1462
+msgid "Bulleted / Numbered"
+msgstr ""
+
+#: feder.py:1462
+msgid "Ctrl+Shift+L / N"
+msgstr ""
+
+#: feder.py:1463
+msgid "Task list / Quote"
+msgstr ""
+
+#: feder.py:1463
+msgid "Ctrl+Shift+O / Q"
+msgstr ""
+
+#: feder.py:1463
+msgid "Image / Table"
+msgstr ""
+
+#: feder.py:1463
+msgid "Ctrl+Shift+I / T"
+msgstr ""
+
+#: feder.py:1464
+msgid "Code block"
+msgstr ""
+
+#: feder.py:1464
+msgid "Ctrl+Alt+C"
+msgstr ""
+
+#: feder.py:1464
+msgid "Link"
+msgstr ""
+
+#: feder.py:1464
+msgid "Ctrl+K"
+msgstr ""
+
+#: feder.py:1464
+msgid "Heading 1 to 3"
+msgstr ""
+
+#: feder.py:1464
+msgid "Ctrl+1 / 2 / 3"
+msgstr ""
+
+#: feder.py:1465
+msgid "Ctrl+F"
+msgstr ""
+
+#: feder.py:1466
+msgid "Font larger / smaller / normal"
+msgstr ""
+
+#: feder.py:1466
+msgid "Ctrl++ / Ctrl+- / Ctrl+0"
+msgstr ""
+
+#: feder.py:1471
+msgid "Close"
+msgstr ""
+
+#: feder.py:1527
+msgid ""
+"Write Markdown with live preview, focus and Hemingway mode. Export to HTML, "
+"Word, LibreOffice and PDF."
+msgstr ""
+
+#: feder.py:1529
+msgid "translator-credits"
+msgstr ""

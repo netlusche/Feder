@@ -1,131 +1,148 @@
 <p align="center">
-  <img src="io.github.netlusche.Feder.svg" width="112" alt="Feder-Icon">
+  <img src="io.github.netlusche.Feder.svg" width="112" alt="Feder icon">
 </p>
 
 <h1 align="center">Feder</h1>
 
 <p align="center">
-  <b>Ruhig schreiben in Markdown.</b><br>
-  Live-Vorschau, Fokus-Modus, Hemingway-Modus und Export nach Word, LibreOffice, PDF und HTML,<br>
-  in einer nativen GNOME-App. Ohne AUR, ohne LaTeX.
+  <b>Calm writing in Markdown.</b><br>
+  Live preview, focus mode, Hemingway mode and export to Word, LibreOffice, PDF and HTML,<br>
+  in a native GNOME app. No AUR, no LaTeX, English and German.
 </p>
 
 <p align="center">
-  <img alt="Version 1.0.0" src="https://img.shields.io/badge/Version-1.0.0-2ec27e">
-  <img alt="Lizenz MIT" src="https://img.shields.io/badge/Lizenz-MIT-3584e4">
-  <img alt="Linux" src="https://img.shields.io/badge/Plattform-Linux-555?logo=linux&logoColor=white">
+  <a href="README.de.md">🇩🇪 Deutsche Version</a>
+</p>
+
+<p align="center">
+  <img alt="Version 1.1.0" src="https://img.shields.io/badge/Version-1.1.0-2ec27e">
+  <img alt="License MIT" src="https://img.shields.io/badge/License-MIT-3584e4">
+  <img alt="Linux" src="https://img.shields.io/badge/Platform-Linux-555?logo=linux&logoColor=white">
   <img alt="GTK 4" src="https://img.shields.io/badge/GTK-4-4a86cf?logo=gtk&logoColor=white">
   <img alt="libadwaita 1.4+" src="https://img.shields.io/badge/libadwaita-1.4%2B-9141ac">
-  <img alt="pandoc" src="https://img.shields.io/badge/Export-pandoc%20%2B%20WebKit-c64600">
-  <img alt="Kein AUR nötig" src="https://img.shields.io/badge/AUR-nicht%20n%C3%B6tig-26a269">
+  <img alt="Export via pandoc and WebKit" src="https://img.shields.io/badge/Export-pandoc%20%2B%20WebKit-c64600">
+  <img alt="Languages English and German" src="https://img.shields.io/badge/Languages-EN%20%7C%20DE-6b7280">
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/editor-hell.png" width="860" alt="Feder mit Editor und Vorschau">
+  <img src="docs/screenshots/en/editor-light.png" width="860" alt="Feder with editor and preview">
 </p>
 
 ---
 
-## Inhalt
+## Contents
 
 - [Features](#features)
 - [Screenshots](#screenshots)
-- [Voraussetzungen](#voraussetzungen)
+- [Requirements](#requirements)
 - [Installation](#installation)
-- [Aktualisieren und Deinstallieren](#aktualisieren-und-deinstallieren)
-- [Tastenkürzel](#tastenkürzel)
-- [Export im Detail](#export-im-detail)
-- [Fehlerbehebung](#fehlerbehebung)
-- [Projektstruktur](#projektstruktur)
-- [Bekannte Grenzen](#bekannte-grenzen)
-- [Lizenz](#lizenz)
+- [Updating and uninstalling](#updating-and-uninstalling)
+- [Language](#language)
+- [Keyboard shortcuts](#keyboard-shortcuts)
+- [Export in detail](#export-in-detail)
+- [Troubleshooting](#troubleshooting)
+- [Project structure](#project-structure)
+- [Known limitations](#known-limitations)
+- [License](#license)
 
 ## Features
 
-### ✍️ Schreiben
-- Editor mit **Markdown-Syntaxhervorhebung** (GtkSourceView), angenehm schmaler Textspalte und Monospace-Schrift
-- **Listen setzen sich fort**: Enter nach `- Punkt`, `1. Punkt` oder `> Zitat` beginnt automatisch die nächste Zeile, ein leerer Punkt beendet die Liste
-- Alle Formatierungen auch per Tastatur, siehe [Tastenkürzel](#tastenkürzel)
+### ✍️ Writing
+- Editor with **Markdown syntax highlighting** (GtkSourceView), a pleasantly narrow text column and a monospace font
+- **Lists continue automatically**: pressing Enter after `- item`, `1. item` or `> quote` starts the next line, an empty item ends the list
+- **Open, Save and New** right at the top left, everything else in the main menu
+- All formatting is also available from the keyboard, see [Keyboard shortcuts](#keyboard-shortcuts)
 
-### 🧰 Formatierungsleiste
-Unten links, in drei Gruppen, jeder Knopf mit Tooltip und Tastenkürzel:
+### 🧰 Formatting bar
+At the bottom left, in three groups, every button with a tooltip showing its shortcut:
 
-| Gruppe | Knöpfe |
+| Group | Buttons |
 |---|---|
-| **Text** | Fett, Kursiv, Durchgestrichen |
-| **Struktur** | Überschrift 1 bis 3, Aufzählung, nummerierte Liste, Aufgabenliste `- [ ]`, Zitat |
-| **Einfügen** | Link, Bild (Dateiauswahl mit relativem Pfad), Tabelle (fertiges Gerüst), Codeblock |
+| **Text** | Bold, italic, strikethrough |
+| **Structure** | Heading 1 to 3, bulleted list, numbered list, task list `- [ ]`, quote |
+| **Insert** | Link, image (file chooser with relative path), table (ready-made scaffold), code block |
 
-- Listen und Zitate wirken auf **alle markierten Zeilen** und lassen sich durch erneutes Klicken wieder entfernen. Eine Aufzählung wird so mit einem Klick zur nummerierten Liste.
-- Im **Fokus-Modus** und in der reinen Vorschau blendet sich die Leiste aus.
-- Bei **schmalem Fenster** wird die Statistik kompakt (ein Klick wechselt zwischen Wörtern, Zeichen und Lesezeit), bei sehr schmalem Fenster weichen die Einfügen-Knöpfe und die Positionsanzeige.
-- **Suchen** mit Trefferanzahl
-- Schriftgröße per <kbd>Strg</kbd> + <kbd>+</kbd> / <kbd>−</kbd>, wird gemerkt
-- Statusleiste mit **Wörtern, Zeichen und Lesezeit**, dazu Zeile und Spalte
+- Lists and quotes apply to **all selected lines** and can be removed by clicking again. One click turns a bulleted list into a numbered one.
+- The bar hides itself in **focus mode** and in preview-only view.
+- In a **narrow window** the statistics become compact (click to switch between words, characters and reading time). In a very narrow window the insert buttons and the position display make room.
+- On the right: line, column, **words, characters and reading time**.
 
-### 👁️ Live-Vorschau
-- Gerenderte Ansicht direkt neben dem Text, aktualisiert sich beim Tippen
-- Drei Ansichten: **nur Editor**, **geteilt** oder **nur Vorschau** (<kbd>Strg</kbd> + <kbd>P</kbd> wechselt)
-- Scrollt synchron mit dem Editor
-- Tabellen, Fußnoten, Codeblöcke mit Syntaxfarben, Zitate und **Bilder aus dem Dokumentordner**
-- Links öffnen sich im Browser, Fußnoten springen innerhalb der Vorschau
+### 👁️ Live preview
+- Rendered view right next to the text, updated as you type
+- Three views: **editor only**, **split** or **preview only** (<kbd>Ctrl</kbd> + <kbd>P</kbd> switches)
+- Scrolls in sync with the editor
+- Tables, footnotes, code blocks with syntax colors, quotes and **images from the document folder**
+- Links open in your browser, footnotes jump within the preview
 
-### 🎯 Fokus-Modus
-- Nur der **Satz, an dem du gerade schreibst**, bleibt hell, der Rest tritt zurück
-- **Schreibmaschinen-Scrollen**: die aktuelle Zeile bleibt in der Fenstermitte
-- Blendet die Vorschau aus und stellt sie danach wieder her
+### 🎯 Focus mode
+- Only the **sentence you are writing** stays bright, the rest steps back
+- **Typewriter scrolling**: the current line stays in the middle of the window
+- Hides the preview and restores it afterwards
 
-### 🚫 Hemingway-Modus
-- **Löschen ist gesperrt**: Rücktaste, Entf, Ausschneiden, Überschreiben einer Markierung und Rückgängig
-- Getreu dem Motto „erst schreiben, später redigieren“
-- Freundlicher Hinweis, wenn du es doch versuchst, und ein Abzeichen in der Statusleiste
+### 🚫 Hemingway mode
+- **Deleting is disabled**: Backspace, Delete, cut, overwriting a selection and undo
+- In the spirit of “write first, edit later”. Formatting (lists, headings) still works.
+- A friendly hint if you try anyway, plus a badge in the status bar
 
 ### 📤 Export
-| Format | Weg | Besonderheit |
+| Format | Via | Notes |
 |---|---|---|
-| **Markdown** (`.md`) | direkt | dein Original, UTF-8 |
-| **HTML** (`.html`) | pandoc | eigenständige Seite mit eingebettetem Stil |
-| **Word** (`.docx`) | pandoc | Überschriften, Tabellen, Bilder, Fußnoten |
-| **LibreOffice** (`.odt`) | pandoc | wie Word, im offenen Format |
-| **PDF** (`.pdf`) | WebKit | A4, sieht aus wie die Vorschau, **kein LaTeX nötig** |
+| **Markdown** (`.md`) | direct | your original, UTF-8 |
+| **HTML** (`.html`) | pandoc | standalone page with embedded style |
+| **Word** (`.docx`) | pandoc | headings, tables, images, footnotes |
+| **LibreOffice** (`.odt`) | pandoc | like Word, in the open format |
+| **PDF** (`.pdf`) | WebKit | A4, looks like the preview, **no LaTeX needed** |
 
-Nach jedem Export kannst du die Datei direkt aus der Benachrichtigung öffnen.
+After every export you can open the file straight from the notification.
 
-### ✨ Rundherum
-- Hell- und Dunkelmodus, folgt der Systemeinstellung (Editor und Vorschau)
-- **Vollbild** mit <kbd>F11</kbd>, blendet alle Leisten aus
-- Rückfrage bei ungespeicherten Änderungen
-- **Einführung** mit allen Funktionen und Kürzeln, jederzeit über das Hauptmenü
-- „Öffnen mit Feder“ im Dateimanager für alle `.md`-Dateien
-- Komplett deutsche Oberfläche
+### 🌍 Two languages
+- **English and German**, following your system language automatically
+- Can be switched in the main menu under **Language**
+- Numbers, shortcut names and placeholder texts follow the language too
+
+### ✨ And also
+- Light and dark mode, follows the system setting (editor and preview)
+- **Full screen** with <kbd>F11</kbd>, hides all bars
+- Asks before discarding unsaved changes
+- “Open With Feder” in the file manager for all `.md` files
+- **Introduction** with all features and shortcuts, available any time from the main menu
 
 ## Screenshots
 
-| Dunkelmodus | Fokus-Modus |
+| Dark mode | Focus mode |
 |:---:|:---:|
-| <img src="docs/screenshots/editor-dunkel.png" alt="Dunkelmodus" width="420"> | <img src="docs/screenshots/fokus-dunkel.png" alt="Fokus-Modus" width="420"> |
-| **Tabellen, Code und Bilder** | **PDF-Export** |
-| <img src="docs/screenshots/vorschau-hell.png" alt="Vorschau mit Tabelle, Code und Bild" width="420"> | <img src="docs/screenshots/pdf-export.png" alt="Exportiertes PDF" width="300"> |
+| <img src="docs/screenshots/en/editor-dark.png" alt="Dark mode" width="420"> | <img src="docs/screenshots/en/focus-dark.png" alt="Focus mode" width="420"> |
+| **Tables, code and images** | **PDF export** |
+| <img src="docs/screenshots/en/preview-light.png" alt="Preview with table, code and image" width="420"> | <img src="docs/screenshots/en/pdf-export.png" alt="Exported PDF" width="300"> |
 
-## Voraussetzungen
+## Requirements
 
 | | |
 |---|---|
-| **System** | Manjaro oder Arch Linux. Entwickelt für GNOME, läuft aber auch unter anderen Desktops. |
-| **Pakete** | `python-gobject`, `gtk4`, `libadwaita` (≥ 1.4), `gtksourceview5`, `webkitgtk-6.0` |
-| **Für den Export** | `pandoc-cli` (HTML, Word, ODT und die Vorschau). PDF braucht nur WebKit. |
+| **System** | A current Linux distribution with libadwaita 1.4 or newer, for example Arch/Manjaro, Debian 13, Ubuntu 24.04, Linux Mint 22 or Fedora 40 and newer. Built for GNOME, works on other desktops too. |
+| **Packages** | Python GObject bindings, GTK 4, libadwaita, GtkSourceView 5, WebKitGTK 6.0 |
+| **For export** | pandoc (HTML, Word, ODT and the preview). PDF only needs WebKit. |
 
-Alles stammt aus den offiziellen Repos. Ohne pandoc läuft Feder trotzdem, die Vorschau nutzt dann `python-markdown` (falls installiert), und Word/ODT sind deaktiviert.
+Everything comes from your distribution’s official repositories. Without pandoc Feder still runs: the preview then uses `python-markdown` (if installed) and Word/ODT export is disabled.
 
 ## Installation
 
-**1. Abhängigkeiten installieren:**
+**1. Install the dependencies** for your distribution:
 
 ```bash
+# Arch Linux / Manjaro / EndeavourOS
 sudo pacman -S --needed git python-gobject gtk4 libadwaita gtksourceview5 webkitgtk-6.0 pandoc-cli
+
+# Debian 13+ / Ubuntu 24.04+ / Linux Mint 22+
+sudo apt install git python3-gi gir1.2-gtk-4.0 gir1.2-adw-1 gir1.2-gtksource-5 gir1.2-webkit-6.0 pandoc
+
+# Fedora 40+
+sudo dnf install git python3-gobject gtk4 libadwaita gtksourceview5 webkitgtk6.0 pandoc
 ```
 
-**2. Repository holen und installieren:**
+Not sure? Just run `./install.sh` in step 2: it detects your distribution and prints the matching command if anything is missing.
+
+**2. Get the repository and install:**
 
 ```bash
 git clone https://github.com/netlusche/Feder.git
@@ -133,125 +150,144 @@ cd Feder
 ./install.sh
 ```
 
-**Feder** erscheint jetzt im App-Menü. Beim ersten Start wartet ein kurzer Willkommenstext mit allen Kürzeln. Du findest ihn jederzeit wieder unter Hauptmenü → **Einführung anzeigen**.
+**Feder** now appears in your app menu. On first start a short welcome text explains everything. You can open it again at any time via main menu → **Show Introduction**.
 
 <details>
-<summary><b>Was macht <code>install.sh</code> genau?</b></summary>
+<summary><b>What exactly does <code>install.sh</code> do?</b></summary>
 
-Der Installer prüft die Python-Bindings und legt nur Dateien in deinem Home-Verzeichnis an:
+The installer detects your distribution and language, checks the Python bindings and the libadwaita version, and only creates files in your home directory:
 
-| Ziel | Inhalt |
+| Target | Contents |
 |---|---|
-| `~/.local/share/feder/` | Programm (`feder.py`) und Symbole |
-| `~/.local/bin/feder` | Start aus dem Terminal, z. B. `feder notizen.md` |
-| `~/.local/share/applications/io.github.netlusche.Feder.desktop` | App-Menü und „Öffnen mit“ für Markdown |
-| `~/.local/share/icons/hicolor/scalable/apps/` | App-Icon |
+| `~/.local/share/feder/` | Program (`feder.py`), icons, translations and data files |
+| `~/.local/bin/feder` | Start from a terminal, e.g. `feder notes.md` |
+| `~/.local/share/applications/io.github.netlusche.Feder.desktop` | App menu entry and “Open With” for Markdown, in English and German |
+| `~/.local/share/icons/hicolor/scalable/apps/` | App icon |
 
-Kein `sudo`, keine systemweiten Änderungen.
+No `sudo`, no system-wide changes.
 </details>
 
 <details>
-<summary><b>Ohne Installation ausprobieren</b></summary>
+<summary><b>Try without installing</b></summary>
 
 ```bash
-python3 feder.py [DATEI.md]
+python3 feder.py [FILE.md]
 ```
 </details>
 
-## Aktualisieren und Deinstallieren
+## Updating and uninstalling
 
 ```bash
-# Aktualisieren
+# Update
 cd Feder
 git pull
 ./install.sh
 
-# Deinstallieren
+# Uninstall
 ./install.sh --uninstall
 ```
 
-Einstellungen (Schriftgröße, Ansicht, Fenstergröße, letzter Ordner) liegen in `~/.config/feder/config.json`.
+Settings (language, font size, view, window size, last folder) are stored in `~/.config/feder/config.json`.
 
-## Tastenkürzel
+## Language
 
-| Aktion | Tasten |
+Feder speaks **English and German** and follows your system language: German if your system is set to German, English otherwise. To choose manually, open the main menu → **Language** and pick *System Default*, *Deutsch* or *English*. The change takes effect after restarting Feder.
+
+**Want to add a language?** Translations use gettext. Copy `po/de.po` to e.g. `po/fr.po`, translate it, add a `data/welcome.fr.md`, run `tools/update-translations.sh` (needs the gettext tools) and open a pull request.
+
+## Keyboard shortcuts
+
+| Action | Keys |
 |---|---|
-| Neu / Öffnen / Speichern | <kbd>Strg</kbd>+<kbd>N</kbd> / <kbd>Strg</kbd>+<kbd>O</kbd> / <kbd>Strg</kbd>+<kbd>S</kbd> |
-| Speichern unter | <kbd>Strg</kbd>+<kbd>Umschalt</kbd>+<kbd>S</kbd> |
-| Exportieren | <kbd>Strg</kbd>+<kbd>E</kbd> |
-| Ansicht wechseln (Editor, geteilt, Vorschau) | <kbd>Strg</kbd>+<kbd>P</kbd> |
-| Fokus-Modus | <kbd>Strg</kbd>+<kbd>D</kbd> |
-| Hemingway-Modus | <kbd>Strg</kbd>+<kbd>Umschalt</kbd>+<kbd>H</kbd> |
-| Fett / Kursiv / Code | <kbd>Strg</kbd>+<kbd>B</kbd> / <kbd>Strg</kbd>+<kbd>I</kbd> / <kbd>Strg</kbd>+<kbd>Umschalt</kbd>+<kbd>C</kbd> |
-| Durchgestrichen | <kbd>Strg</kbd>+<kbd>Umschalt</kbd>+<kbd>X</kbd> |
-| Aufzählung / nummerierte Liste | <kbd>Strg</kbd>+<kbd>Umschalt</kbd>+<kbd>L</kbd> / <kbd>N</kbd> |
-| Aufgabenliste / Zitat | <kbd>Strg</kbd>+<kbd>Umschalt</kbd>+<kbd>O</kbd> / <kbd>Q</kbd> |
-| Link einfügen | <kbd>Strg</kbd>+<kbd>K</kbd> |
-| Bild / Tabelle einfügen | <kbd>Strg</kbd>+<kbd>Umschalt</kbd>+<kbd>I</kbd> / <kbd>T</kbd> |
-| Codeblock | <kbd>Strg</kbd>+<kbd>Alt</kbd>+<kbd>C</kbd> |
-| Überschrift 1 bis 3 (erneut drücken entfernt sie) | <kbd>Strg</kbd>+<kbd>1</kbd> / <kbd>2</kbd> / <kbd>3</kbd> |
-| Suchen | <kbd>Strg</kbd>+<kbd>F</kbd> |
-| Schrift größer / kleiner / normal | <kbd>Strg</kbd>+<kbd>+</kbd> / <kbd>Strg</kbd>+<kbd>−</kbd> / <kbd>Strg</kbd>+<kbd>0</kbd> |
-| Vollbild an / aus | <kbd>F11</kbd> (raus auch mit <kbd>Esc</kbd>) |
-| Beenden | <kbd>Strg</kbd>+<kbd>Q</kbd> |
+| New / Open / Save | <kbd>Ctrl</kbd>+<kbd>N</kbd> / <kbd>Ctrl</kbd>+<kbd>O</kbd> / <kbd>Ctrl</kbd>+<kbd>S</kbd> |
+| Save as | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> |
+| Export | <kbd>Ctrl</kbd>+<kbd>E</kbd> |
+| Switch view (editor, split, preview) | <kbd>Ctrl</kbd>+<kbd>P</kbd> |
+| Focus mode | <kbd>Ctrl</kbd>+<kbd>D</kbd> |
+| Hemingway mode | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>H</kbd> |
+| Bold / Italic / Code | <kbd>Ctrl</kbd>+<kbd>B</kbd> / <kbd>Ctrl</kbd>+<kbd>I</kbd> / <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>C</kbd> |
+| Strikethrough | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>X</kbd> |
+| Bulleted / numbered list | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>L</kbd> / <kbd>N</kbd> |
+| Task list / quote | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>O</kbd> / <kbd>Q</kbd> |
+| Insert link | <kbd>Ctrl</kbd>+<kbd>K</kbd> |
+| Insert image / table | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>I</kbd> / <kbd>T</kbd> |
+| Code block | <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>C</kbd> |
+| Heading 1 to 3 (press again to remove) | <kbd>Ctrl</kbd>+<kbd>1</kbd> / <kbd>2</kbd> / <kbd>3</kbd> |
+| Search | <kbd>Ctrl</kbd>+<kbd>F</kbd> |
+| Font larger / smaller / normal | <kbd>Ctrl</kbd>+<kbd>+</kbd> / <kbd>Ctrl</kbd>+<kbd>−</kbd> / <kbd>Ctrl</kbd>+<kbd>0</kbd> |
+| Full screen on / off | <kbd>F11</kbd> (leave also with <kbd>Esc</kbd>) |
+| Quit | <kbd>Ctrl</kbd>+<kbd>Q</kbd> |
 
-## Export im Detail
+## Export in detail
 
-- **Bilder** mit relativem Pfad (`![](bild.png)`) werden aus dem Ordner der Markdown-Datei geladen, sowohl in der Vorschau als auch in Word, ODT und PDF. Speichere neue Dokumente also einmal, bevor du Bilder einbindest.
-- **HTML** ist eine einzelne Datei mit eingebettetem Stil. Bilder bleiben verlinkt, lege sie deshalb neben die HTML-Datei.
-- **PDF** entsteht über die Druckfunktion von WebKit, A4 mit 20 mm Rand. Das Ergebnis entspricht der hellen Vorschau.
-- **Word und ODT** nutzen die Standardvorlagen von pandoc. Eigene Formatvorlagen sind für eine spätere Version geplant.
-- Als **Dateiname** schlägt Feder die erste Überschrift oder den Dateinamen vor.
+- **Images** with a relative path (`![](image.png)`) are loaded from the folder of the Markdown file, in the preview as well as in Word, ODT and PDF. So save new documents once before adding images.
+- **HTML** is a single file with embedded style. Images stay linked, so keep them next to the HTML file.
+- **PDF** is created through WebKit’s print function, A4 with 20 mm margins. It matches the light preview, even if you work in dark mode.
+- **Word and ODT** use pandoc’s default templates. Custom templates are planned for a later version.
+- As a **file name** Feder suggests the first heading or the document’s file name.
 
-## Fehlerbehebung
+## Troubleshooting
 
 <details>
-<summary><b>„Für Word und ODT wird pandoc benötigt“</b></summary>
+<summary><b>“Word and ODT export needs pandoc”</b></summary>
+
+Install pandoc from your distribution, Feder shows the matching command in the message:
 
 ```bash
-sudo pacman -S --needed pandoc-cli
+sudo pacman -S --needed pandoc-cli   # Arch / Manjaro
+sudo apt install pandoc              # Debian / Ubuntu / Mint
+sudo dnf install pandoc              # Fedora
 ```
 </details>
 
 <details>
-<summary><b>Bilder erscheinen nicht in der Vorschau</b></summary>
+<summary><b>Images don’t show in the preview</b></summary>
 
-Relative Pfade beziehen sich auf den Ordner der Datei. Bei einem neuen, noch nicht gespeicherten Dokument gibt es diesen Ordner noch nicht: einmal speichern, dann klappt es.
+Relative paths refer to the folder of the file. A new, unsaved document has no folder yet: save it once and it works.
 </details>
 
 <details>
-<summary><b>Installer meldet fehlende Pakete</b></summary>
+<summary><b>The installer reports missing packages or an old libadwaita</b></summary>
 
-```bash
-sudo pacman -S --needed python-gobject gtk4 libadwaita gtksourceview5 webkitgtk-6.0
-```
-
-Danach `./install.sh` erneut ausführen.
+Run the command the installer prints, then start `./install.sh` again. Feder needs libadwaita 1.4 or newer, which older releases such as Ubuntu 22.04 or Linux Mint 21 don’t provide.
 </details>
 
-## Projektstruktur
+<details>
+<summary><b>Feder shows the wrong language</b></summary>
+
+Feder follows `LANGUAGE`, `LC_ALL`, `LC_MESSAGES` and `LANG`. To override, use main menu → **Language** and restart Feder.
+</details>
+
+## Project structure
 
 ```
 Feder/
-├── feder.py                          # die komplette App
-├── install.sh                        # Installer / Deinstaller (nur ~/.local)
-├── io.github.netlusche.Feder.svg     # App-Icon
-├── icons/hicolor/scalable/actions/
-│   └── feder-*-symbolic.svg          # eigene Symbolic-Icons
-├── docs/screenshots/                 # Bilder für dieses README
+├── feder.py                          # the whole app
+├── install.sh                        # installer / uninstaller (~/.local only)
+├── io.github.netlusche.Feder.svg     # app icon
+├── data/
+│   ├── preview.css                   # style for preview and export
+│   └── welcome.en.md, welcome.de.md  # introduction text per language
+├── po/                               # translation sources (gettext)
+├── locale/                           # compiled translations
+├── tools/update-translations.sh      # developer tool for translations
+├── icons/hicolor/scalable/actions/   # custom symbolic icons
+├── docs/screenshots/                 # images for the READMEs (en, de)
+├── CHANGELOG.md
 ├── LICENSE
-└── README.md
+├── README.md
+└── README.de.md
 ```
 
-## Bekannte Grenzen
+## Known limitations
 
-- **Keine Rechtschreibprüfung** in Version 1.0.
-- Die Scroll-Synchronisation ist proportional, bei sehr unterschiedlich langen Abschnitten (z. B. großen Bildern) liegt die Vorschau leicht daneben.
-- Beim Fokus-Modus erkennt Feder Satzenden an `.`, `!`, `?` und `…`. Abkürzungen wie „z. B.“ zählen dabei als Satzende.
-- Getestet mit libadwaita 1.5, GTK 4.14, WebKitGTK 2.52 und pandoc 3.1, ausgelegt für libadwaita 1.4 und neuer.
+- **No spell checking** yet.
+- Scroll sync is proportional, so with very uneven sections (e.g. large images) the preview can be slightly off.
+- Focus mode detects sentence ends at `.`, `!`, `?` and `…`. Abbreviations such as “e.g.” count as sentence ends.
+- Tested with libadwaita 1.5, GTK 4.14, WebKitGTK 2.52 and pandoc 3.1 on Ubuntu 24.04, designed for libadwaita 1.4 and newer. The Fedora package names have not been tested on Fedora itself yet.
 
-## Lizenz
+## License
 
-[MIT](LICENSE). Mach damit, was du möchtest.
+[MIT](LICENSE). Do whatever you like with it.
 
-<p align="center"><sub>Gebaut mit GTK 4, libadwaita, GtkSourceView, WebKitGTK und pandoc.</sub></p>
+<p align="center"><sub>Built with GTK 4, libadwaita, GtkSourceView, WebKitGTK and pandoc.</sub></p>
