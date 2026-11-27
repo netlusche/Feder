@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-# Feder – Markdown-Editor mit Live-Vorschau, Fokus- und Hemingway-Modus
+# Feder – Markdown editor with live preview, focus and Hemingway mode
 #
-# Native GTK4/libadwaita-App, nur Pakete aus den offiziellen Repos:
-#   sudo pacman -S --needed python-gobject gtk4 libadwaita gtksourceview5 webkitgtk-6.0 pandoc-cli
+# Native GTK4/libadwaita app, only packages from the official distribution repos.
+# Dependencies per distribution: see README.md or run ./install.sh
 #
-# Aufruf:  feder [DATEI.md]
+# Usage:  feder [FILE.md]
 
+import gettext
 import html
 import json
 import os
@@ -23,98 +24,112 @@ from gi.repository import Adw, Gdk, Gio, GLib, GObject, Gtk, GtkSource, WebKit  
 
 APP_ID = "io.github.netlusche.Feder"
 APP_NAME = "Feder"
-VERSION = "1.0.0"
+VERSION = "1.1.0"
 HERE = os.path.dirname(os.path.realpath(__file__))
 CONFIG_PATH = os.path.join(GLib.get_user_config_dir(), "feder", "config.json")
 WORDS_PER_MINUTE = 200
 
+
+# --------------------------------------------------------------------------- Sprache (gettext)
+
+_TRANSLATION = gettext.NullTranslations()
+LANG = "en"
+LOCALE_DIRS = [os.path.join(HERE, "locale"), os.path.join(GLib.get_user_data_dir(), "feder", "locale")]
+SUPPORTED_LANGS = ("en", "de")
+
+
+def _(text):
+    return _TRANSLATION.gettext(text)
+
+
+def ngettext(singular, plural, n):
+    return _TRANSLATION.ngettext(singular, plural, n)
+
+
+def N_(text):
+    """Markiert Text zum Übersetzen, ohne ihn sofort zu übersetzen."""
+    return text
+
+
+def system_language():
+    for var in ("LANGUAGE", "LC_ALL", "LC_MESSAGES", "LANG"):
+        value = os.environ.get(var, "")
+        if value and value not in ("C", "POSIX"):
+            return "de" if value.split(":")[0].lower().startswith("de") else "en"
+    return "en"
+
+
+def translation_for(lang):
+    for d in LOCALE_DIRS:
+        if os.path.isdir(d):
+            t = gettext.translation("feder", localedir=d, languages=[lang], fallback=True)
+            if not isinstance(t, gettext.NullTranslations) or type(t) is not gettext.NullTranslations:
+                return t
+    return gettext.NullTranslations()
+
+
+def setup_language(preference):
+    """preference: 'system', 'de' oder 'en'."""
+    global _TRANSLATION, LANG
+    LANG = preference if preference in SUPPORTED_LANGS else system_language()
+    _TRANSLATION = translation_for(LANG) if LANG != "en" else gettext.NullTranslations()
+
+
+def os_release():
+    info = {}
+    try:
+        with open("/etc/os-release", encoding="utf-8") as f:
+            for line in f:
+                k, _sep, v = line.strip().partition("=")
+                info[k] = v.strip('"')
+    except OSError:
+        pass
+    return info
+
+
+def install_command(package):
+    """Installationsbefehl für ein Paket auf der erkannten Distribution."""
+    info = os_release()
+    ids = (info.get("ID", "") + " " + info.get("ID_LIKE", "")).lower().split()
+    names = {"pandoc": {"pacman": "pandoc-cli", "apt": "pandoc", "dnf": "pandoc"}}[package]
+    if any(i in ids for i in ("arch", "manjaro", "endeavouros")):
+        return f"sudo pacman -S {names['pacman']}"
+    if any(i in ids for i in ("debian", "ubuntu", "linuxmint", "pop")):
+        return f"sudo apt install {names['apt']}"
+    if any(i in ids for i in ("fedora", "rhel", "centos")):
+        return f"sudo dnf install {names['dnf']}"
+    return names["apt"]
+
+
 EXPORTS = {
-    "html": ("HTML-Seite", "html"),
-    "docx": ("Word-Dokument", "docx"),
-    "odt": ("LibreOffice-Dokument", "odt"),
-    "pdf": ("PDF-Dokument", "pdf"),
+    "html": (N_("HTML page"), "html"),
+    "docx": (N_("Word document"), "docx"),
+    "odt": (N_("LibreOffice document"), "odt"),
+    "pdf": (N_("PDF document"), "pdf"),
 }
 
-WELCOME = """# Willkommen bei Feder
+def welcome_text():
+    for d in (os.path.join(HERE, "data"), os.path.join(GLib.get_user_data_dir(), "feder", "data")):
+        for lang in (LANG, "en"):
+            path = os.path.join(d, f"welcome.{lang}.md")
+            if os.path.isfile(path):
+                with open(path, encoding="utf-8") as f:
+                    return f.read()
+    return "# Feder\n"
 
-Feder ist ein ruhiger Ort zum Schreiben. Du schreibst **Markdown**, rechts siehst du sofort, wie es aussieht. Fertige Texte exportierst du als *HTML*, *Word*, *LibreOffice* oder *PDF*.
+def _load_preview_css():
+    for d in (os.path.join(HERE, "data"), os.path.join(GLib.get_user_data_dir(), "feder", "data")):
+        path = os.path.join(d, "preview.css")
+        if os.path.isfile(path):
+            with open(path, encoding="utf-8") as f:
+                return f.read()
+    return "body { font-family: sans-serif; max-width: 44em; margin: 0 auto; padding: 2em; }"
 
-## Zwei Modi für konzentriertes Schreiben
 
-> **Fokus-Modus** (Strg + D): Nur der Satz, an dem du gerade schreibst, bleibt hell. Die Zeile bleibt mittig wie bei einer Schreibmaschine.
-
-> **Hemingway-Modus** (Strg + Umschalt + H): Löschen ist gesperrt. Erst schreiben, später redigieren.
-
-## Praktische Kürzel
-
-| Aktion | Tasten |
-|---|---|
-| Fett, kursiv | Strg + B, Strg + I |
-| Link einfügen | Strg + K |
-| Überschrift 1 bis 3 | Strg + 1, 2, 3 |
-| Suchen | Strg + F |
-| Exportieren | Strg + E |
-| Vollbild | F11 |
-
-Alle wichtigen Formatierungen findest du auch als **Knöpfe unten links**: Text, Struktur (Überschriften, Listen, Zitat) und Einfügen (Link, Bild, Tabelle, Code). Jeder Knopf verrät per Tooltip sein Tastenkürzel.
-
-Listen setzen sich beim Drücken von Enter automatisch fort:
-
-- Erster Gedanke
-- Zweiter Gedanke
-
-Diese Einführung findest du jederzeit wieder im Hauptmenü unter **Einführung anzeigen**.
-
-Viel Freude beim Schreiben!
-"""
-
-PREVIEW_CSS = r"""
-:root { --fg:#1e1e1e; --muted:#5e5c64; --bg:#ffffff; --code:#f6f5f4; --border:#deddda; --accent:#3584e4; }
-html.dark { --fg:#f0f0f0; --muted:#a8a8b0; --bg:#1d1d20; --code:#2a2a2e; --border:#3a3a40; --accent:#78aeed; }
-html { background: var(--bg); min-height: 100%; }
-body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--fg);
-       font: 16px/1.65 "Cantarell", "Inter", "Noto Sans", system-ui, sans-serif; }
-#content { max-width: 44em; margin: 0 auto; padding: 36px 32px 80px; }
-h1, h2, h3, h4 { line-height: 1.25; margin: 1.6em 0 .6em; font-weight: 800; }
-h1 { font-size: 2.1em; margin-top: .4em; }
-h2 { font-size: 1.5em; padding-bottom: .25em; border-bottom: 1px solid var(--border); }
-h3 { font-size: 1.2em; }
-p, ul, ol, blockquote, table, pre { margin: 0 0 1em; }
-a { color: var(--accent); text-decoration: none; border-bottom: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); }
-blockquote { margin-left: 0; padding: .2em 1em; border-left: 4px solid var(--accent);
-             background: color-mix(in srgb, var(--accent) 7%, transparent); border-radius: 0 8px 8px 0; color: var(--fg); }
-blockquote p { margin: .5em 0; }
-code { font: .9em "IBM Plex Mono", "Fira Mono", "DejaVu Sans Mono", monospace; background: var(--code);
-       padding: .12em .35em; border-radius: 5px; }
-pre { background: var(--code); padding: 14px 16px; border-radius: 10px; overflow-x: auto; }
-pre code { padding: 0; background: none; font-size: .88em; }
-pre code a { border: 0; }
-table { border-collapse: collapse; width: 100%; font-size: .95em; }
-th, td { border: 1px solid var(--border); padding: 7px 10px; text-align: left; vertical-align: top; }
-th { background: var(--code); }
-img { max-width: 100%; border-radius: 8px; }
-hr { border: 0; border-top: 1px solid var(--border); margin: 2em 0; }
-li { margin: .2em 0; }
-li > input[type=checkbox] { margin-right: .4em; }
-.footnotes { font-size: .9em; color: var(--muted); }
-/* pandoc-Syntaxhervorhebung */
-code span.kw, code span.cf { color: #c01c28; font-weight: 600; } html.dark code span.kw, html.dark code span.cf { color: #ff7b72; }
-code span.st, code span.ch { color: #26a269; } html.dark code span.st, html.dark code span.ch { color: #8ff0a4; }
-code span.co { color: var(--muted); font-style: italic; }
-code span.dv, code span.fl, code span.bn { color: #c64600; } html.dark code span.dv, html.dark code span.fl { color: #ffbe6f; }
-code span.fu { color: #1c71d8; } html.dark code span.fu { color: #99c1f1; }
-code span.dt { color: #813d9c; } html.dark code span.dt { color: #dc8add; }
-.empty { color: var(--muted); text-align: center; margin-top: 30vh; font-style: italic; }
-@media print {
-  body { font-size: 11pt; }
-  #content { max-width: none; padding: 0; }
-  h2 { break-after: avoid; } pre, blockquote, table, img { break-inside: avoid; }
-  a { border: 0; }
-}
-"""
+PREVIEW_CSS = _load_preview_css()
 
 TEMPLATE = """<!DOCTYPE html>
-<html lang="de" class="{body_class}"><head><meta charset="utf-8">
+<html lang="{lang}" class="{body_class}"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{title}</title>
 <style>{css}</style>
@@ -137,7 +152,7 @@ QUOTE = re.compile(r"^(\s*>\s?)")
 
 def load_config():
     cfg = {"font_size": 13, "view_mode": "split", "welcomed": False, "last_dir": None,
-           "width": 1180, "height": 780}
+           "width": 1180, "height": 780, "language": "system"}
     try:
         with open(CONFIG_PATH, encoding="utf-8") as f:
             cfg.update(json.load(f))
@@ -156,7 +171,7 @@ def save_config(cfg):
 
 
 def num(n):
-    return f"{n:,}".replace(",", ".")
+    return f"{n:,}".replace(",", ".") if LANG == "de" else f"{n:,}"
 
 
 def count_words(text):
@@ -185,7 +200,7 @@ class Renderer:
 
     @property
     def name(self):
-        return "pandoc" if self.pandoc else ("python-markdown" if self.pymd else "Klartext")
+        return "pandoc" if self.pandoc else ("python-markdown" if self.pymd else _("plain text"))
 
     def render_async(self, text, cwd, callback):
         if self.pandoc:
@@ -196,14 +211,14 @@ class Renderer:
             try:
                 proc = launcher.spawnv([self.pandoc, "-f", "markdown", "-t", "html5"])
             except GLib.Error as exc:
-                callback(f"<p>pandoc-Fehler: {html.escape(exc.message)}</p>")
+                callback("<p>" + html.escape(_("pandoc error: {message}").format(message=exc.message)) + "</p>")
                 return
 
             def done(p, res):
                 try:
                     _ok, out, _err = p.communicate_utf8_finish(res)
                 except GLib.Error as exc:
-                    out = f"<p>pandoc-Fehler: {html.escape(exc.message)}</p>"
+                    out = "<p>" + html.escape(_("pandoc error: {message}").format(message=exc.message)) + "</p>"
                 callback(out or "")
 
             proc.communicate_utf8_async(text, None, done)
@@ -343,7 +358,8 @@ class Editor(GtkSource.View):
         return True
 
     # ---- Formatierung
-    def wrap_selection(self, before, after, placeholder="Text"):
+    def wrap_selection(self, before, after, placeholder=None):
+        placeholder = placeholder or _("text")
         b = self.buffer
         b.begin_user_action()
         if b.get_has_selection():
@@ -364,7 +380,7 @@ class Editor(GtkSource.View):
     def insert_link(self):
         b = self.buffer
         b.begin_user_action()
-        text = "Linktext"
+        text = _("link text")
         if b.get_has_selection():
             s, e = b.get_selection_bounds()
             text = b.get_text(s, e, True)
@@ -477,11 +493,12 @@ class Editor(GtkSource.View):
             b.place_cursor(b.get_selection_bounds()[1])
         self._ensure_own_block()
         mark = b.create_mark(None, b.get_iter_at_mark(b.get_insert()), True)
-        b.insert_at_cursor("| Spalte 1 | Spalte 2 | Spalte 3 |\n|---|---|---|\n|  |  |  |\n")
+        cols = [_("Column {n}").format(n=n) for n in (1, 2, 3)]
+        b.insert_at_cursor("| " + " | ".join(cols) + " |\n|---|---|---|\n|  |  |  |\n")
         st = b.get_iter_at_mark(mark)
         st.forward_chars(2)
         en = st.copy()
-        en.forward_chars(len("Spalte 1"))
+        en.forward_chars(len(cols[0]))
         b.select_range(st, en)
         b.delete_mark(mark)
         b.end_user_action()
@@ -505,7 +522,8 @@ class Editor(GtkSource.View):
         b.delete_mark(mark)
         b.end_user_action()
 
-    def insert_image(self, path, alt="Bildbeschreibung"):
+    def insert_image(self, path, alt=None):
+        alt = alt or _("image description")
         b = self.buffer
         b.begin_user_action()
         if b.get_has_selection():
@@ -621,7 +639,7 @@ class Preview(WebKit.WebView):
         self.base_dir = base_dir
         self.ready = False
         dark = Adw.StyleManager.get_default().get_dark()
-        page = TEMPLATE.format(title="Vorschau", css=PREVIEW_CSS, body_class="dark" if dark else "",
+        page = TEMPLATE.format(title=_("Preview"), css=PREVIEW_CSS, lang=LANG, body_class="dark" if dark else "",
                                body="", script=LIVE_SCRIPT)
         base = GLib.filename_to_uri(base_dir, None) + "/" if base_dir else "file:///"
         self.load_html(page, base)
@@ -655,7 +673,7 @@ class Preview(WebKit.WebView):
     def set_body(self, body_html):
         self.pending = body_html
         if not body_html.strip():
-            body_html = '<p class="empty">Hier erscheint die Vorschau, sobald du schreibst.</p>'
+            body_html = '<p class="empty">' + html.escape(_("The preview appears here as soon as you start writing.")) + "</p>"
         self._js(f"feder_set({json.dumps(body_html)})")
 
     def scroll_fraction(self, f):
@@ -747,7 +765,7 @@ class FederWindow(Adw.ApplicationWindow):
         # Suche
         self.search_settings = GtkSource.SearchSettings(wrap_around=True, case_sensitive=False)
         self.search_ctx = GtkSource.SearchContext(buffer=self.editor.buffer, settings=self.search_settings)
-        self.search_entry = Gtk.SearchEntry(placeholder_text="Im Text suchen …", width_chars=30)
+        self.search_entry = Gtk.SearchEntry(placeholder_text=_("Search in text …"), width_chars=30)
         self.search_entry.connect("search-changed", self._on_search)
         self.search_entry.connect("activate", lambda *_: self._search_step(True))
         self.search_entry.connect("next-match", lambda *_: self._search_step(True))
@@ -775,12 +793,12 @@ class FederWindow(Adw.ApplicationWindow):
 
         # Statusleiste mit Formatierungsknöpfen
         self.format_revealer = self._build_format_bar()
-        self.pill_focus = Gtk.Label(label="FOKUS", css_classes=["mode-pill"], visible=False)
+        self.pill_focus = Gtk.Label(label=_("FOCUS"), css_classes=["mode-pill"], visible=False)
         self.pill_hem = Gtk.Label(label="HEMINGWAY", css_classes=["mode-pill", "hemingway"], visible=False)
         self.pos_label = Gtk.Label(css_classes=["dim-label", "numeric"])
         self.stats_label = Gtk.Label(css_classes=["dim-label", "numeric"])
         self.stats_button = Gtk.Button(child=self.stats_label, css_classes=["flat", "stats-btn"],
-                                       tooltip_text="Wörter, Zeichen und Lesezeit")
+                                       tooltip_text=_("Words, characters and reading time"))
         self.stats_button.connect("clicked", self._cycle_stats)
         self._stats_compact = False
         self._stats_index = 0
@@ -799,50 +817,59 @@ class FederWindow(Adw.ApplicationWindow):
         # Kopfleiste
         self.title = Adw.WindowTitle(title=APP_NAME)
         header = Adw.HeaderBar(title_widget=self.title)
-        open_btn = Gtk.Button(icon_name="document-open-symbolic", tooltip_text="Öffnen (Strg+O)",
+        open_btn = Gtk.Button(icon_name="document-open-symbolic", tooltip_text=_("Open (Ctrl+O)"),
                               action_name="win.open")
         header.pack_start(open_btn)
-        new_btn = Gtk.Button(icon_name="document-new-symbolic", tooltip_text="Neu (Strg+N)", action_name="win.new")
+        save_btn = Gtk.Button(icon_name="document-save-symbolic", tooltip_text=_("Save (Ctrl+S)"),
+                              action_name="win.save")
+        header.pack_start(save_btn)
+        new_btn = Gtk.Button(icon_name="document-new-symbolic", tooltip_text=_("New (Ctrl+N)"),
+                             action_name="win.new")
         header.pack_start(new_btn)
 
         menu = Gio.Menu()
         sec = Gio.Menu()
-        sec.append("Neu", "win.new")
-        sec.append("Öffnen …", "win.open")
-        sec.append("Speichern", "win.save")
-        sec.append("Speichern unter …", "win.save-as")
+        sec.append(_("New"), "win.new")
+        sec.append(_("Open …"), "win.open")
+        sec.append(_("Save"), "win.save")
+        sec.append(_("Save As …"), "win.save-as")
         menu.append_section(None, sec)
         exp = Gio.Menu()
         for key, (label, _ext) in EXPORTS.items():
-            exp.append(f"{label} (.{key})", f"win.export::{key}")
-        menu.append_submenu("Exportieren als", exp)
+            exp.append(f"{_(label)} (.{key})", f"win.export::{key}")
+        menu.append_submenu(_("Export As"), exp)
         sec2 = Gio.Menu()
-        sec2.append("Suchen", "win.find")
-        sec2.append("Vollbild", "win.fullscreen")
+        sec2.append(_("Search"), "win.find")
+        sec2.append(_("Full Screen"), "win.fullscreen")
+        langs = Gio.Menu()
+        langs.append(_("System Default"), "win.language::system")
+        langs.append("Deutsch", "win.language::de")
+        langs.append("English", "win.language::en")
+        sec2.append_submenu(_("Language"), langs)
         menu.append_section(None, sec2)
         sec3 = Gio.Menu()
-        sec3.append("Einführung anzeigen", "win.welcome")
-        sec3.append("Tastenkürzel", "win.shortcuts")
-        sec3.append("Über Feder", "app.about")
+        sec3.append(_("Show Introduction"), "win.welcome")
+        sec3.append(_("Keyboard Shortcuts"), "win.shortcuts")
+        sec3.append(_("About Feder"), "app.about")
         menu.append_section(None, sec3)
         header.pack_end(Gtk.MenuButton(icon_name="open-menu-symbolic", menu_model=menu, primary=True,
-                                       tooltip_text="Hauptmenü"))
+                                       tooltip_text=_("Main Menu")))
 
         exp_btn = Gtk.MenuButton(icon_name="feder-export-symbolic", menu_model=exp,
-                                 tooltip_text="Exportieren (Strg+E)")
+                                 tooltip_text=_("Export (Ctrl+E)"))
         self.export_button = exp_btn
         header.pack_end(exp_btn)
 
         views = Gio.Menu()
-        views.append("Nur Editor", "win.view-mode::editor")
-        views.append("Editor und Vorschau", "win.view-mode::split")
-        views.append("Nur Vorschau", "win.view-mode::preview")
+        views.append(_("Editor Only"), "win.view-mode::editor")
+        views.append(_("Editor and Preview"), "win.view-mode::split")
+        views.append(_("Preview Only"), "win.view-mode::preview")
         header.pack_end(Gtk.MenuButton(icon_name="feder-preview-symbolic", menu_model=views,
-                                       tooltip_text="Ansicht (Strg+P wechselt)"))
+                                       tooltip_text=_("View (Ctrl+P switches)")))
         header.pack_end(Gtk.ToggleButton(icon_name="feder-hemingway-symbolic", action_name="win.hemingway",
-                                         tooltip_text="Hemingway-Modus: nicht löschen (Strg+Umschalt+H)"))
+                                         tooltip_text=_("Hemingway mode: no deleting (Ctrl+Shift+H)")))
         header.pack_end(Gtk.ToggleButton(icon_name="feder-focus-symbolic", action_name="win.focus",
-                                         tooltip_text="Fokus-Modus (Strg+D)"))
+                                         tooltip_text=_("Focus mode (Ctrl+D)")))
         self.header = header
 
         self.tv = Adw.ToolbarView(content=self.toasts)
@@ -872,7 +899,7 @@ class FederWindow(Adw.ApplicationWindow):
         self.paned.set_position(self.cfg["width"] // 2)
 
         if not self.cfg.get("welcomed"):
-            self.editor.set_text(WELCOME)
+            self.editor.set_text(welcome_text())
             self.cfg["welcomed"] = True
             save_config(self.cfg)
         self._update_title()
@@ -909,7 +936,7 @@ class FederWindow(Adw.ApplicationWindow):
             ["<primary>f"])
         add("bold", lambda *_: self.editor.wrap_selection("**", "**"), ["<primary>b"])
         add("italic", lambda *_: self.editor.wrap_selection("*", "*"), ["<primary>i"])
-        add("code", lambda *_: self.editor.wrap_selection("`", "`", "Code"), ["<primary><shift>c"])
+        add("code", lambda *_a: self.editor.wrap_selection("`", "`", _("code")), ["<primary><shift>c"])
         add("link", lambda *_: self.editor.insert_link(), ["<primary>k"])
         add("strike", lambda *_: self.editor.wrap_selection("~~", "~~"), ["<primary><shift>x"])
         add("list-bullet", lambda *_: self.editor.toggle_line_prefix("bullet"), ["<primary><shift>l"])
@@ -926,21 +953,23 @@ class FederWindow(Adw.ApplicationWindow):
         add("zoom-reset", lambda *_: self._zoom(0), ["<primary>0"])
         add("shortcuts", lambda *_: self._show_shortcuts(), ["<primary>question"])
         add("welcome", lambda *_: self._guard(self._show_welcome))
+        self.act_lang = add("language", self._on_language, param="s",
+                            state=GLib.Variant("s", self.cfg.get("language", "system")))
 
     def _build_format_bar(self):
         groups = [
-            [("<b>B</b>", "win.bold", "Fett (Strg+B)"),
-             ("<i>I</i>", "win.italic", "Kursiv (Strg+I)"),
-             ("<s>S</s>", "win.strike", "Durchgestrichen (Strg+Umschalt+X)")],
-            [("heading", None, "Überschrift (Strg+1, 2, 3)"),
-             ("feder-list-bullet-symbolic", "win.list-bullet", "Aufzählung (Strg+Umschalt+L)"),
-             ("feder-list-number-symbolic", "win.list-number", "Nummerierte Liste (Strg+Umschalt+N)"),
-             ("feder-list-task-symbolic", "win.list-task", "Aufgabenliste (Strg+Umschalt+O)"),
-             ("feder-quote-symbolic", "win.quote", "Zitat (Strg+Umschalt+Q)")],
-            [("feder-link-symbolic", "win.link", "Link (Strg+K)"),
-             ("feder-image-symbolic", "win.image", "Bild einfügen (Strg+Umschalt+I)"),
-             ("feder-table-symbolic", "win.table", "Tabelle einfügen (Strg+Umschalt+T)"),
-             ("feder-code-symbolic", "win.code-block", "Codeblock (Strg+Alt+C)")],
+            [("<b>B</b>", "win.bold", _("Bold (Ctrl+B)")),
+             ("<i>I</i>", "win.italic", _("Italic (Ctrl+I)")),
+             ("<s>S</s>", "win.strike", _("Strikethrough (Ctrl+Shift+X)"))],
+            [("heading", None, _("Heading (Ctrl+1, 2, 3)")),
+             ("feder-list-bullet-symbolic", "win.list-bullet", _("Bulleted list (Ctrl+Shift+L)")),
+             ("feder-list-number-symbolic", "win.list-number", _("Numbered list (Ctrl+Shift+N)")),
+             ("feder-list-task-symbolic", "win.list-task", _("Task list (Ctrl+Shift+O)")),
+             ("feder-quote-symbolic", "win.quote", _("Quote (Ctrl+Shift+Q)"))],
+            [("feder-link-symbolic", "win.link", _("Link (Ctrl+K)")),
+             ("feder-image-symbolic", "win.image", _("Insert image (Ctrl+Shift+I)")),
+             ("feder-table-symbolic", "win.table", _("Insert table (Ctrl+Shift+T)")),
+             ("feder-code-symbolic", "win.code-block", _("Code block (Ctrl+Alt+C)"))],
         ]
         bar = Gtk.Box(spacing=1, valign=Gtk.Align.CENTER)
         self.format_groups = []
@@ -952,7 +981,7 @@ class FederWindow(Adw.ApplicationWindow):
                 if icon == "heading":
                     hm = Gio.Menu()
                     for n in (1, 2, 3):
-                        hm.append(f"Überschrift {n}", f"win.h{n}")
+                        hm.append(_("Heading {n}").format(n=n), f"win.h{n}")
                     btn = Gtk.MenuButton(menu_model=hm, tooltip_text=tip, css_classes=["flat"],
                                          always_show_arrow=True)
                     btn.set_child(Gtk.Label(label="<b>H</b>", use_markup=True, css_classes=["fmt-letter"]))
@@ -988,22 +1017,24 @@ class FederWindow(Adw.ApplicationWindow):
 
     def _show_stats(self):
         words, chars, minutes = self._stats
-        parts = [f"{num(words)} Wörter", f"{num(chars)} Zeichen", f"{minutes} Min. Lesezeit"]
+        parts = [ngettext("{n} word", "{n} words", words).format(n=num(words)),
+                 ngettext("{n} character", "{n} characters", chars).format(n=num(chars)),
+                 _("{n} min read").format(n=minutes)]
         if self._stats_compact:
             self.stats_label.set_label(parts[self._stats_index])
-            self.stats_button.set_tooltip_text("Klicken: zwischen Wörtern, Zeichen und Lesezeit wechseln")
+            self.stats_button.set_tooltip_text(_("Click to switch between words, characters and reading time"))
         else:
             self.stats_label.set_label("  ·  ".join(parts))
-            self.stats_button.set_tooltip_text("Wörter, Zeichen und Lesezeit")
+            self.stats_button.set_tooltip_text(_("Words, characters and reading time"))
 
     def _choose_image(self):
         store = Gio.ListStore.new(Gtk.FileFilter)
-        f = Gtk.FileFilter(name="Bilder")
+        f = Gtk.FileFilter(name=_("Images"))
         for p in ("*.png", "*.jpg", "*.jpeg", "*.gif", "*.svg", "*.webp"):
             f.add_pattern(p)
             f.add_pattern(p.upper())
         store.append(f)
-        dlg = Gtk.FileDialog(title="Bild einfügen", modal=True, filters=store)
+        dlg = Gtk.FileDialog(title=_("Insert Image"), modal=True, filters=store)
         folder = self._initial_folder()
         if folder:
             dlg.set_initial_folder(folder)
@@ -1019,9 +1050,20 @@ class FederWindow(Adw.ApplicationWindow):
                 rel = os.path.relpath(path, doc_dir)
                 path = rel if not rel.startswith("../../..") else path
             else:
-                self.toast("Tipp: Speichere das Dokument, dann wird der Bildpfad relativ und portabel.")
+                self.toast(_("Tip: Save the document first, then the image path becomes relative and portable."))
             self.editor.insert_image(path)
         dlg.open(self, None, done)
+
+    def _on_language(self, act, value):
+        lang = value.get_string()
+        if lang == self.cfg.get("language", "system"):
+            return
+        act.set_state(value)
+        self.cfg["language"] = lang
+        save_config(self.cfg)
+        target = lang if lang in SUPPORTED_LANGS else system_language()
+        t = translation_for(target) if target != "en" else gettext.NullTranslations()
+        self.toast(t.gettext("Restart Feder to switch the language."))
 
     def _on_view_mode(self, act, value):
         self._set_view_mode(value.get_string())
@@ -1061,15 +1103,15 @@ class FederWindow(Adw.ApplicationWindow):
         act.set_state(value)
         self.pill_hem.set_visible(on)
         self.editor.set_hemingway(on)
-        self.toast("Hemingway-Modus an: Löschen ist gesperrt. Nur vorwärts!" if on
-                   else "Hemingway-Modus aus: Du darfst wieder löschen.")
+        self.toast(_("Hemingway mode on: deleting is disabled. Only forward!") if on
+                   else _("Hemingway mode off: you can delete again."))
         self.editor.grab_focus()
 
     def _on_blocked(self, _ed):
         now = GLib.get_monotonic_time()
         if now - self._last_block_toast > 8_000_000:
             self._last_block_toast = now
-            self.toast("Hemingway-Modus: Löschen ist gesperrt. Schreib einfach weiter.")
+            self.toast(_("Hemingway mode: deleting is disabled. Just keep writing."))
         self.error_bell()
 
     def _on_fullscreen(self, *_):
@@ -1128,7 +1170,8 @@ class FederWindow(Adw.ApplicationWindow):
 
     def _update_pos(self):
         it = self.editor.buffer.get_iter_at_mark(self.editor.buffer.get_insert())
-        self.pos_label.set_label(f"Zeile {it.get_line() + 1}, Spalte {it.get_line_offset() + 1}")
+        self.pos_label.set_label(_("Line {line}, Column {column}").format(line=it.get_line() + 1,
+                                                                           column=it.get_line_offset() + 1))
 
     # ---------------------------------------------------------------- Suche
     def _on_search(self, entry):
@@ -1139,7 +1182,8 @@ class FederWindow(Adw.ApplicationWindow):
     def _update_search_info(self):
         n = self.search_ctx.get_occurrences_count()
         self.search_info.set_label("" if not self.search_entry.get_text() else
-                                   ("keine Treffer" if n == 0 else f"{n} Treffer" if n > 0 else ""))
+                                   (_("no matches") if n == 0 else
+                                    ngettext("{n} match", "{n} matches", n).format(n=n) if n > 0 else ""))
         return False
 
     def _search_step(self, forward, from_start=False):
@@ -1166,14 +1210,14 @@ class FederWindow(Adw.ApplicationWindow):
         return None
 
     def _update_title(self):
-        name = self.file.get_basename() if self.file else "Unbenannt.md"
+        name = self.file.get_basename() if self.file else _("Untitled") + ".md"
         mod = self.editor.buffer.get_modified()
         self.title.set_title(("• " if mod else "") + name)
         if self.file and self.file.get_path():
             d = os.path.dirname(self.file.get_path()).replace(GLib.get_home_dir(), "~", 1)
             self.title.set_subtitle(d)
         else:
-            self.title.set_subtitle("Noch nicht gespeichert")
+            self.title.set_subtitle(_("Not saved yet"))
         self.set_title(f"{name} – {APP_NAME}")
 
     def _guard(self, then):
@@ -1184,15 +1228,15 @@ class FederWindow(Adw.ApplicationWindow):
         self._ask_unsaved(then)
 
     def _ask_unsaved(self, then):
-        name = self.file.get_basename() if self.file else "Unbenannt.md"
-        heading = "Änderungen speichern?"
-        body = f"„{name}“ enthält ungespeicherte Änderungen. Ohne Speichern gehen sie verloren."
+        name = self.file.get_basename() if self.file else _("Untitled") + ".md"
+        heading = _("Save changes?")
+        body = _("“{name}” has unsaved changes. They will be lost if you don’t save them.").format(name=name)
         cls = getattr(Adw, "AlertDialog", None)
         dlg = cls(heading=heading, body=body) if cls else Adw.MessageDialog(transient_for=self, heading=heading,
                                                                              body=body)
-        dlg.add_response("cancel", "Abbrechen")
-        dlg.add_response("discard", "Verwerfen")
-        dlg.add_response("save", "Speichern")
+        dlg.add_response("cancel", _("Cancel"))
+        dlg.add_response("discard", _("Discard"))
+        dlg.add_response("save", _("Save"))
         dlg.set_response_appearance("discard", Adw.ResponseAppearance.DESTRUCTIVE)
         dlg.set_response_appearance("save", Adw.ResponseAppearance.SUGGESTED)
         dlg.set_default_response("save")
@@ -1208,7 +1252,7 @@ class FederWindow(Adw.ApplicationWindow):
 
     def _show_welcome(self):
         self.file = None
-        self.editor.set_text(WELCOME)
+        self.editor.set_text(welcome_text())
         self.preview.reload_shell(None)
         self._update_title()
         self._schedule_render(0)
@@ -1227,12 +1271,12 @@ class FederWindow(Adw.ApplicationWindow):
             for p in ("*.md", "*.markdown", "*.mdown", "*.mkd", "*.txt"):
                 f.add_pattern(p)
             store.append(f)
-            a = Gtk.FileFilter(name="Alle Dateien")
+            a = Gtk.FileFilter(name=_("All Files"))
             a.add_pattern("*")
             store.append(a)
         else:
             label, ext = EXPORTS[kind]
-            f = Gtk.FileFilter(name=label)
+            f = Gtk.FileFilter(name=_(label))
             f.add_pattern(f"*.{ext}")
             store.append(f)
         return store
@@ -1243,7 +1287,7 @@ class FederWindow(Adw.ApplicationWindow):
         return Gio.File.new_for_path(d) if d and os.path.isdir(d) else None
 
     def _open_dialog(self):
-        dlg = Gtk.FileDialog(title="Markdown-Datei öffnen", modal=True, filters=self._filters("md"))
+        dlg = Gtk.FileDialog(title=_("Open Markdown File"), modal=True, filters=self._filters("md"))
         folder = self._initial_folder()
         if folder:
             dlg.set_initial_folder(folder)
@@ -1261,7 +1305,7 @@ class FederWindow(Adw.ApplicationWindow):
             with open(gfile.get_path(), encoding="utf-8") as fh:
                 text = fh.read()
         except (OSError, UnicodeDecodeError, TypeError) as exc:
-            self.toast(f"Konnte die Datei nicht öffnen: {exc}")
+            self.toast(_("Could not open the file: {error}").format(error=exc))
             return
         self.file = gfile
         self.editor.set_text(text)
@@ -1276,7 +1320,7 @@ class FederWindow(Adw.ApplicationWindow):
         if self.file and not force_dialog:
             self._write(self.file, after)
             return
-        dlg = Gtk.FileDialog(title="Speichern unter", modal=True, filters=self._filters("md"))
+        dlg = Gtk.FileDialog(title=_("Save As"), modal=True, filters=self._filters("md"))
         dlg.set_initial_name(self.file.get_basename() if self.file else
                              self._suggest_name() + ".md")
         folder = self._initial_folder()
@@ -1302,30 +1346,31 @@ class FederWindow(Adw.ApplicationWindow):
             with open(gfile.get_path(), "w", encoding="utf-8") as fh:
                 fh.write(self.editor.get_text())
         except OSError as exc:
-            self.toast(f"Speichern fehlgeschlagen: {exc}")
+            self.toast(_("Saving failed: {error}").format(error=exc))
             return
         self.editor.buffer.set_modified(False)
         self.cfg["last_dir"] = os.path.dirname(gfile.get_path())
         save_config(self.cfg)
         Gtk.RecentManager.get_default().add_item(gfile.get_uri())
         self._update_title()
-        self.toast(f"Gespeichert: {gfile.get_basename()}")
+        self.toast(_("Saved: {name}").format(name=gfile.get_basename()))
         if after:
             after()
 
     def _suggest_name(self):
         if self.file:
             return os.path.splitext(self.file.get_basename())[0]
-        t = title_from_markdown(self.editor.get_text(), "Unbenannt")
-        return re.sub(r"[^\w\- ]", "", t).strip()[:60] or "Unbenannt"
+        t = title_from_markdown(self.editor.get_text(), _("Untitled"))
+        return re.sub(r"[^\w\- ]", "", t).strip()[:60] or _("Untitled")
 
     # ---------------------------------------------------------------- Export
     def export(self, kind):
         if kind in ("docx", "odt") and not self.renderer.pandoc:
-            self.toast("Für Word und ODT wird pandoc benötigt: sudo pacman -S pandoc-cli")
+            self.toast(_("Word and ODT export needs pandoc: {command}").format(command=install_command("pandoc")))
             return
         label, ext = EXPORTS[kind]
-        dlg = Gtk.FileDialog(title=f"Als {label} exportieren", modal=True, filters=self._filters(kind))
+        dlg = Gtk.FileDialog(title=_("Export as {format}").format(format=_(label)), modal=True,
+                             filters=self._filters(kind))
         dlg.set_initial_name(f"{self._suggest_name()}.{ext}")
         folder = self._initial_folder()
         if folder:
@@ -1344,7 +1389,7 @@ class FederWindow(Adw.ApplicationWindow):
 
     def _standalone_html(self, body, for_print=False):
         title = html.escape(title_from_markdown(self.editor.get_text(), self._suggest_name()))
-        return TEMPLATE.format(title=title, css=PREVIEW_CSS, body_class="", body=body, script="")
+        return TEMPLATE.format(title=title, css=PREVIEW_CSS, lang=LANG, body_class="", body=body, script="")
 
     def _do_export(self, kind, path):
         text = self.editor.get_text()
@@ -1352,10 +1397,11 @@ class FederWindow(Adw.ApplicationWindow):
 
         def finished(err=None):
             if err:
-                self.toast(f"Export fehlgeschlagen: {err}")
+                self.toast(_("Export failed: {error}").format(error=err))
                 return
-            t = Adw.Toast(title=GLib.markup_escape_text(f"Exportiert: {os.path.basename(path)}"), timeout=6)
-            t.set_button_label("Öffnen")
+            t = Adw.Toast(title=GLib.markup_escape_text(_("Exported: {name}").format(name=os.path.basename(path))),
+                          timeout=6)
+            t.set_button_label(_("Open"))
             t.connect("button-clicked", lambda *_: Gtk.FileLauncher.new(Gio.File.new_for_path(path)).launch(
                 self, None, None))
             self.toasts.add_toast(t)
@@ -1372,7 +1418,7 @@ class FederWindow(Adw.ApplicationWindow):
                         return
                     finished()
                 else:
-                    self.toast("PDF wird erstellt …")
+                    self.toast(_("Creating PDF …"))
                     print_to_pdf(self, page, cwd, path, finished)
             self.renderer.render_async(text, cwd, rendered)
             return
@@ -1398,7 +1444,8 @@ class FederWindow(Adw.ApplicationWindow):
                 finished(exc.message)
                 return
             if p.get_exit_status() != 0:
-                finished((err or "").strip().splitlines()[-1] if err else f"pandoc-Exit {p.get_exit_status()}")
+                finished((err or "").strip().splitlines()[-1] if err else
+                         _("pandoc exit code {code}").format(code=p.get_exit_status()))
             else:
                 finished()
         proc.communicate_utf8_async(text, None, done)
@@ -1408,18 +1455,20 @@ class FederWindow(Adw.ApplicationWindow):
         self.toasts.add_toast(Adw.Toast(title=GLib.markup_escape_text(text), timeout=3))
 
     def _show_shortcuts(self):
-        rows = [("Neu / Öffnen / Speichern", "Strg+N / Strg+O / Strg+S"), ("Speichern unter", "Strg+Umschalt+S"),
-                ("Exportieren", "Strg+E"), ("Ansicht wechseln", "Strg+P"), ("Fokus-Modus", "Strg+D"),
-                ("Hemingway-Modus", "Strg+Umschalt+H"), ("Fett / Kursiv / Code", "Strg+B / Strg+I / Strg+Umschalt+C"),
-                ("Durchgestrichen", "Strg+Umschalt+X"), ("Aufzählung / Nummeriert", "Strg+Umschalt+L / N"),
-                ("Aufgabenliste / Zitat", "Strg+Umschalt+O / Q"), ("Bild / Tabelle", "Strg+Umschalt+I / T"),
-                ("Codeblock", "Strg+Alt+C"), ("Link", "Strg+K"), ("Überschrift 1 bis 3", "Strg+1 / 2 / 3"), ("Suchen", "Strg+F"),
-                ("Schrift größer / kleiner / normal", "Strg++ / Strg+- / Strg+0"), ("Vollbild", "F11")]
+        rows = [(_("New / Open / Save"), _("Ctrl+N / Ctrl+O / Ctrl+S")), (_("Save As"), _("Ctrl+Shift+S")),
+                (_("Export"), _("Ctrl+E")), (_("Switch view"), _("Ctrl+P")), (_("Focus mode"), _("Ctrl+D")),
+                (_("Hemingway mode"), _("Ctrl+Shift+H")),
+                (_("Bold / Italic / Code"), _("Ctrl+B / Ctrl+I / Ctrl+Shift+C")),
+                (_("Strikethrough"), _("Ctrl+Shift+X")), (_("Bulleted / Numbered"), _("Ctrl+Shift+L / N")),
+                (_("Task list / Quote"), _("Ctrl+Shift+O / Q")), (_("Image / Table"), _("Ctrl+Shift+I / T")),
+                (_("Code block"), _("Ctrl+Alt+C")), (_("Link"), _("Ctrl+K")), (_("Heading 1 to 3"), _("Ctrl+1 / 2 / 3")),
+                (_("Search"), _("Ctrl+F")),
+                (_("Font larger / smaller / normal"), _("Ctrl++ / Ctrl+- / Ctrl+0")), (_("Full Screen"), "F11")]
         body = "\n".join(f"{a}:  {b}" for a, b in rows)
         cls = getattr(Adw, "AlertDialog", None)
-        dlg = cls(heading="Tastenkürzel", body=body) if cls else Adw.MessageDialog(
-            transient_for=self, heading="Tastenkürzel", body=body)
-        dlg.add_response("ok", "Schließen")
+        dlg = cls(heading=_("Keyboard Shortcuts"), body=body) if cls else Adw.MessageDialog(
+            transient_for=self, heading=_("Keyboard Shortcuts"), body=body)
+        dlg.add_response("ok", _("Close"))
         dlg.present(self) if cls else dlg.present()
 
     def _on_close_request(self, *_):
@@ -1472,11 +1521,12 @@ class FederApp(Adw.Application):
         else:
             self.quit()
 
-    def _about(self, *_):
+    def _about(self, *_args):
         kw = dict(application_name=APP_NAME, application_icon=APP_ID, version=VERSION,
                   developer_name="netlusche & Claudia",
-                  comments="Markdown schreiben mit Live-Vorschau, Fokus- und Hemingway-Modus. "
-                           "Export nach HTML, Word, LibreOffice und PDF.",
+                  comments=_("Write Markdown with live preview, focus and Hemingway mode. "
+                             "Export to HTML, Word, LibreOffice and PDF."),
+                  translator_credits=_("translator-credits"),
                   website="https://github.com/netlusche/Feder",
                   license_type=Gtk.License.MIT_X11)
         win = self.get_active_window()
@@ -1487,6 +1537,7 @@ class FederApp(Adw.Application):
 
 
 def main():
+    setup_language(load_config().get("language", "system"))
     if "--version" in sys.argv:
         print(f"{APP_NAME} {VERSION}")
         return 0
